@@ -245,21 +245,21 @@
             document.getElementById('scroll-hint').style.opacity = scroll.classList.contains('is-open') ? '0' : '1';
         }
 
-        // DỮ LIỆU 12 THẦY CÔ LỚP group 1 (theo TKB số 05, 02-07/11/2026)
+        // DỮ LIỆU 12 THẦY CÔ LỚP 12A1 (theo TKB số 05, 02-07/11/2026)
         // Muốn thêm ảnh: điền tên file vào "image", ví dụ image: "ninh.jpg"
         const members = [
-            { name: "Ninh", subject: "Toán", icon: "📐", image: "", gvcn: true, quote: "Cảm ơn thầy/cô đã kiên nhẫn dẫn dắt cả lớp, trong giờ Toán lẫn ngoài giờ học." },
-            { name: "Phương", subject: "Ngữ văn", icon: "📖", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em biết yêu từng con chữ và dám nói điều mình nghĩ." },
-            { name: "Son", subject: "Tiếng Anh", icon: "🌍", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã mở cho chúng em cánh cửa nhìn ra thế giới bằng một ngôn ngữ mới." },
-            { name: "Yến L", subject: "Vật lí", icon: "⚛️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu thế giới quanh mình vận hành ra sao, từng chút một." },
-            { name: "Thịnh", subject: "Hóa học", icon: "🧪", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã cho chúng em thấy mỗi phản ứng đều có nguyên nhân, mỗi nỗ lực đều có kết quả." },
-            { name: "Oanh", subject: "Sinh học", icon: "🌱", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em trân trọng sự sống và những điều nhỏ bé quanh mình." },
-            { name: "Huyền", subject: "Lịch sử", icon: "🏛️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu quá khứ để biết ơn hiện tại và vững bước tới tương lai." },
-            { name: "Thái", subject: "Tin học", icon: "💻", image: "thay-thai-tin-hoc.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em tư duy logic và cách làm chủ công nghệ." },
-            { name: "Công", subject: "Giáo dục thể chất (GDTC)", icon: "⚽", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em khỏe người, khỏe tinh thần sau những giờ học căng thẳng." },
-            { name: "Chung", subject: "Quốc phòng - An ninh (QPAN)", icon: "🎖️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em tinh thần kỷ luật và lòng yêu Tổ quốc." },
-            { name: "Thái", subject: "HĐ trải nghiệm, hướng nghiệp (HĐTN)", icon: "🧭", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu mình hơn và chọn được hướng đi cho tương lai." },
-            { name: "Thanh", subject: "Giáo dục địa phương (GDĐP)", icon: "🏞️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em thêm yêu và tự hào về quê hương Ninh Bình." }
+            { name: "Thầy Ninh", subject: "Toán", icon: "📐", image: "", gvcn: true, quote: "Cảm ơn thầy/cô đã kiên nhẫn dẫn dắt cả lớp, trong giờ Toán lẫn ngoài giờ học." },
+            { name: "Cô Phương", subject: "Ngữ văn", icon: "📖", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em biết yêu từng con chữ và dám nói điều mình nghĩ." },
+            { name: "Cô Son", subject: "Tiếng Anh", icon: "🌍", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã mở cho chúng em cánh cửa nhìn ra thế giới bằng một ngôn ngữ mới." },
+            { name: "Cô Hải Yến", subject: "Vật lí", icon: "⚛️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu thế giới quanh mình vận hành ra sao, từng chút một." },
+            { name: "Thầy Thịnh", subject: "Hóa học", icon: "🧪", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã cho chúng em thấy mỗi phản ứng đều có nguyên nhân, mỗi nỗ lực đều có kết quả." },
+            { name: "Cô Oanh", subject: "Sinh học", icon: "🌱", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em trân trọng sự sống và những điều nhỏ bé quanh mình." },
+            { name: "Cô Huyền", subject: "Lịch sử", icon: "🏛️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu quá khứ để biết ơn hiện tại và vững bước tới tương lai." },
+            { name: "Thầy Thái", subject: "Tin học", icon: "💻", image: "thay-thai-tin-hoc.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em tư duy logic và cách làm chủ công nghệ." },
+            { name: "Thầy Công", subject: "Giáo dục thể chất (GDTC)", icon: "⚽", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em khỏe người, khỏe tinh thần sau những giờ học căng thẳng." },
+            { name: "Thầy Chung", subject: "Quốc phòng - An ninh (QPAN)", icon: "🎖️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em tinh thần kỷ luật và lòng yêu Tổ quốc." },
+            { name: "Thầy Thái", subject: "HĐ trải nghiệm, hướng nghiệp (HĐTN)", icon: "🧭", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu mình hơn và chọn được hướng đi cho tương lai." },
+            { name: "Cô Thanh", subject: "Giáo dục địa phương (GDĐP)", icon: "🏞️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em thêm yêu và tự hào về quê hương Ninh Bình." }
         ];
 
         // ===== BẢNG LỜI CHÚC =====
