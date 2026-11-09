@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tri Ân Thầy Cô 20/11 - Tập thể group 1</title>
+    <title>Tri Ân Thầy Cô 20/11 - Tập thể 12A1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -248,7 +248,7 @@
         // DỮ LIỆU 12 THẦY CÔ LỚP 12A1 (theo TKB số 05, 02-07/11/2026)
         // Muốn thêm ảnh: điền tên file vào "image", ví dụ image: "ninh.jpg"
         const members = [
-            { name: "Thầy Ninh", subject: "Toán", icon: "📐", image: "", gvcn: true, quote: "Cảm ơn thầy/cô đã kiên nhẫn dẫn dắt cả lớp, trong giờ Toán lẫn ngoài giờ học." },
+            { name: "Thầy Ninh", subject: "Toán", icon: "📐", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã kiên nhẫn dẫn dắt cả lớp, trong giờ Toán lẫn ngoài giờ học." },
             { name: "Cô Phương", subject: "Ngữ văn", icon: "📖", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em biết yêu từng con chữ và dám nói điều mình nghĩ." },
             { name: "Cô Son", subject: "Tiếng Anh", icon: "🌍", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã mở cho chúng em cánh cửa nhìn ra thế giới bằng một ngôn ngữ mới." },
             { name: "Cô Hải Yến", subject: "Vật lí", icon: "⚛️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu thế giới quanh mình vận hành ra sao, từng chút một." },
@@ -272,6 +272,49 @@
         const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         const clean = s => String(s || '').trim().replace(/\s+/g, ' ');
         const rKey = (name, subject) => (clean(name) + '|' + clean(subject)).toLowerCase();
+        const normalizeTeacherText = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+        const SUBJECT_ICONS = new Map([
+            ['📐', ['toan']],
+            ['📖', ['ngu van']],
+            ['🌍', ['tieng anh']],
+            ['⚛️', ['vat li', 'vat ly']],
+            ['🧪', ['hoa hoc']],
+            ['🌱', ['sinh hoc']],
+            ['🏛️', ['lich su']],
+            ['💻', ['tin hoc']],
+            ['⚽', ['giao duc the chat', 'gdtc']],
+            ['🎖️', ['quoc phong an ninh', 'qpan']],
+            ['🧭', ['hd trai nghiem huong nghiep', 'hoat dong trai nghiem huong nghiep', 'hdtn']],
+            ['🏞️', ['giao duc dia phuong', 'gddp']]
+        ]);
+        function iconForSubject(subject) {
+            const normalized = normalizeTeacherText(subject);
+            for (const [icon, subjects] of SUBJECT_ICONS) {
+                if (subjects.some(name => normalized === name || normalized.includes(name))) return icon;
+            }
+            return '🎓';
+        }
+        const teacherBaseName = name => normalizeTeacherText(name).replace(/^(thay|co)\s+/, '');
+        const teacherTitle = name => {
+            const normalized = normalizeTeacherText(name);
+            return normalized.startsWith('thay ') ? 'Thầy' : normalized.startsWith('co ') ? 'Cô' : '';
+        };
+        const stripTeacherTitle = name => clean(name).replace(/^(thầy|thay|cô|co)\s+/i, '').trim();
+        function resolveListedTeacher(name, subject, title) {
+            const baseName = teacherBaseName(name);
+            const named = members.filter(member => teacherBaseName(member.name) === baseName);
+            const titled = title ? named.filter(member => teacherTitle(member.name) === title) : named;
+            if (titled.length === 1) return { status: 'match', member: titled[0] };
+            if (titled.length > 1) {
+                const normalizedSubject = normalizeTeacherText(subject);
+                const bySubject = normalizedSubject
+                    ? titled.filter(member => normalizeTeacherText(member.subject) === normalizedSubject)
+                    : [];
+                if (bySubject.length === 1) return { status: 'match', member: bySubject[0] };
+                return { status: 'ambiguous', members: titled };
+            }
+            return named.length ? { status: 'genderMismatch', members: named } : { status: 'none', members: [] };
+        }
         const loadWishes = () => { try { const d = JSON.parse(localStorage.getItem(BOARD_KEY) || '[]'); return Array.isArray(d) ? d : []; } catch (e) { return []; } };
         const saveWishes = d => { try { localStorage.setItem(BOARD_KEY, JSON.stringify(d)); return true; } catch (e) { return false; } };
         function submitWishToServer(wish) {
@@ -314,17 +357,19 @@
         const palettes = [['#f6b3a8','#e58fa6'],['#b8a7f0','#8f7be0'],['#8fd0f5','#5aa9e6'],['#8fe0c8','#4fb8a6'],['#f4d58d','#d9a441'],['#ffc09f','#f08a7e']];
         const palStyle = i => { const c = palettes[i % palettes.length]; return `--c1:${c[0]};--c2:${c[1]}`; };
         const fieldCls = 'w-full rounded-xl border-2 border-[#b8a7f0] bg-white/90 px-4 py-3 text-base text-[#1e2a5e] focus:outline-none focus:border-[#d4577a]';
-
         let recipients = [];
         function buildRecipients() {
             const map = new Map();
             members.forEach(m => {
                 const k = rKey(m.name, m.subject);
-                map.set(k, { key: k, name: m.name, subject: m.subject, icon: m.icon, image: m.image, gvcn: m.gvcn, wishes: [{ id: null, from: 'Tập thể group 1', text: m.quote }] });
+                map.set(k, { key: k, name: m.name, subject: m.subject, icon: m.icon, image: m.image, gvcn: m.gvcn, wishes: [{ id: null, from: 'Tập thể 12A1', text: m.quote }] });
             });
             loadWishes().forEach(w => {
-                const k = rKey(w.to, w.subject);
-                if (!map.has(k)) map.set(k, { key: k, name: w.to, subject: w.subject || '', icon: '🎓', image: '', gvcn: false, wishes: [] });
+                const match = resolveListedTeacher(w.to, w.subject, teacherTitle(w.to));
+                const to = match.status === 'match' ? match.member.name : w.to;
+                const subject = match.status === 'match' ? match.member.subject : (w.subject || '');
+                const k = rKey(to, subject);
+                if (!map.has(k)) map.set(k, { key: k, name: to, subject: subject, icon: iconForSubject(subject), image: '', gvcn: false, wishes: [] });
                 map.get(k).wishes.push(w);
             });
             recipients = [...map.values()];
@@ -332,13 +377,14 @@
 
         function renderBoard() {
             buildRecipients();
+            recipients.sort((a, b) => b.wishes.length - a.wishes.length);
             const grid = document.getElementById('member-grid');
             grid.innerHTML = '';
             recipients.forEach((r, i) => {
                 const card = document.createElement('div');
                 card.className = 'student-card p-6 rounded-2xl flex flex-col items-center text-center';
                 card.style.cssText = palStyle(i);
-                card.innerHTML = `${avatar(r, 'w-24 h-24 rounded-full border-4 border-white shadow-md mb-4', 'text-5xl')}<h3 class="font-bold text-[#1e2a5e] text-lg">${esc(r.name)}</h3>${r.subject ? `<p class="text-[#b0457c] text-xs mb-1">${esc(r.subject)}</p>` : ''}${r.gvcn ? '<span class="medal-badge mt-1">GVCN group 1</span>' : ''}<span class="text-xs font-bold text-[#1e2a5e]/70 mt-2">💌 ${r.wishes.length} lời chúc</span>`;
+                card.innerHTML = `${avatar(r, 'w-24 h-24 rounded-full border-4 border-white shadow-md mb-4', 'text-5xl')}<h3 class="font-bold text-[#1e2a5e] text-lg">${esc(r.name)}</h3>${r.subject ? `<p class="text-[#b0457c] text-xs mb-1">${esc(r.subject)}</p>` : ''}${r.gvcn ? '<span class="medal-badge mt-1">GVCN 12A1</span>' : ''}<span class="text-xs font-bold text-[#1e2a5e]/70 mt-2">💌 ${r.wishes.length} lời chúc</span>`;
                 card.onclick = () => openModal(i);
                 grid.appendChild(card);
             });
@@ -362,7 +408,7 @@
                         <h2 class="text-5xl font-tet grad-text mb-3 mt-5">${esc(r.name)}</h2>
                         <div class="flex flex-wrap justify-center gap-2">
                             ${r.subject ? `<span class="personal-tag">Môn: ${esc(r.subject)}</span>` : ''}
-                            ${r.gvcn ? '<span class="personal-tag">Giáo viên chủ nhiệm group 1</span>' : ''}
+                            ${r.gvcn ? '<span class="personal-tag">Giáo viên chủ nhiệm 12A1</span>' : ''}
                         </div>
                         <div class="mb-8">${list}</div>
                         <button onclick="giveWish(${i})" class="btn-grad text-white px-6 py-2 rounded-full font-bold shadow-lg active:scale-95 transition">✏️ Viết lời chúc cho ${esc(r.name)}</button>
@@ -388,8 +434,16 @@
                         <option value="new">➕ Thầy/cô khác (tự nhập tên)</option>
                     </select>
                     <div id="new-fields" class="hidden mt-3 space-y-3">
-                        <input id="wish-name" type="text" maxlength="40" placeholder="Tên thầy/cô" class="${fieldCls}">
-                        <input id="wish-subject" type="text" maxlength="40" placeholder="Môn dạy / chức vụ (không bắt buộc)" class="${fieldCls}">
+                        <label class="block text-sm font-bold" for="wish-title">Danh xưng</label>
+                        <select id="wish-title" onchange="updateNewRecipientMatch()" class="${fieldCls}">
+                            <option value="">— Chọn thầy hay cô —</option>
+                            <option value="Thầy">Thầy</option>
+                            <option value="Cô">Cô</option>
+                        </select>
+                        <label class="block text-sm font-bold" for="wish-name">Tên thầy/cô</label>
+                        <input id="wish-name" type="text" maxlength="40" placeholder="Ví dụ: Ninh" oninput="updateNewRecipientMatch()" class="${fieldCls}">
+                        <input id="wish-subject" type="text" maxlength="40" placeholder="Môn dạy / chức vụ (nếu trùng tên)" oninput="updateNewRecipientMatch()" class="${fieldCls}">
+                        <p id="new-match-hint" class="text-sm text-[#1e2a5e]/70" aria-live="polite">Chọn danh xưng và nhập tên để kiểm tra trùng với danh sách.</p>
                     </div>
                     <label class="block text-sm font-bold mt-5 mb-1" for="wish-from">Tên của bạn <span class="font-normal opacity-70">(không bắt buộc)</span></label>
                     <input id="wish-from" type="text" maxlength="40" value="${esc(sender)}" placeholder="Ví dụ: Lan, học sinh cũ khóa 2023" class="${fieldCls}">
@@ -404,7 +458,32 @@
         function onWishTo() {
             const isNew = document.getElementById('wish-to').value === 'new';
             document.getElementById('new-fields').classList.toggle('hidden', !isNew);
-            if (isNew) document.getElementById('wish-name').focus();
+            if (isNew) {
+                updateNewRecipientMatch();
+                document.getElementById('wish-title').focus();
+            }
+        }
+
+        function updateNewRecipientMatch() {
+            const title = document.getElementById('wish-title').value;
+            const name = clean(document.getElementById('wish-name').value);
+            const subject = clean(document.getElementById('wish-subject').value);
+            const hint = document.getElementById('new-match-hint');
+            if (!name || !title) {
+                hint.textContent = 'Chọn danh xưng và nhập tên để kiểm tra trùng với danh sách.';
+                return;
+            }
+
+            const result = resolveListedTeacher(name, subject, title);
+            if (result.status === 'match') {
+                hint.textContent = `Sẽ gộp vào thẻ ${result.member.name}${result.member.subject ? ` – ${result.member.subject}` : ''}.`;
+            } else if (result.status === 'ambiguous') {
+                hint.textContent = `Có nhiều ${title.toLowerCase()} ${stripTeacherTitle(name)}. Hãy nhập đúng môn dạy/chức vụ để chọn người nhận.`;
+            } else if (result.status === 'genderMismatch') {
+                hint.textContent = `Tên này có trong danh sách là ${result.members.map(member => member.name).join(' / ')}. Hãy kiểm tra danh xưng.`;
+            } else {
+                hint.textContent = `Chưa khớp tên có sẵn; lời chúc sẽ tạo thẻ mới cho ${title} ${stripTeacherTitle(name)}.`;
+            }
         }
 
         async function sendWish() {
@@ -416,12 +495,23 @@
             let name, subject;
             if (v === '') { err.textContent = 'Hãy chọn thầy/cô cần gửi lời chúc nhé.'; return; }
             if (v === 'new') {
-                name = clean(document.getElementById('wish-name').value);
+                const title = document.getElementById('wish-title').value;
+                name = stripTeacherTitle(document.getElementById('wish-name').value);
                 subject = clean(document.getElementById('wish-subject').value);
+                if (!title) { err.textContent = 'Hãy chọn danh xưng Thầy hoặc Cô.'; return; }
                 if (!name) { err.textContent = 'Hãy nhập tên thầy/cô.'; return; }
-                if (!subject) {
-                    const same = recipients.filter(r => r.name.toLowerCase() === name.toLowerCase());
-                    if (same.length === 1) { name = same[0].name; subject = same[0].subject; }
+                const match = resolveListedTeacher(name, subject, title);
+                if (match.status === 'match') {
+                    name = match.member.name;
+                    subject = match.member.subject;
+                } else if (match.status === 'ambiguous') {
+                    err.textContent = 'Có nhiều thầy/cô trùng tên. Hãy nhập đúng môn dạy/chức vụ để phân biệt.';
+                    return;
+                } else if (match.status === 'genderMismatch') {
+                    err.textContent = `Tên này đang có trong danh sách là ${match.members.map(member => member.name).join(' / ')}. Hãy kiểm tra danh xưng hoặc chọn thầy/cô trong danh sách.`;
+                    return;
+                } else {
+                    name = `${title} ${name}`;
                 }
             } else {
                 const r = recipients[+v];
