@@ -9,6 +9,8 @@
     <style>
         :root { --ink: #1e2a5e; --gold: #d9a441; --pink: #d4577a; }
         body { background-color: #fff7ec; color: var(--ink); font-family: 'Quicksand', sans-serif; overflow-x: hidden; margin: 0; cursor: crosshair; }
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+        *::-webkit-scrollbar { display: none; }
         .font-tet { font-family: 'Dancing Script', cursive; }
         .font-tet.underline { text-decoration-skip-ink: none; text-underline-offset: 0.2em; text-decoration-thickness: 2px; }
         .chalk { text-shadow: 2px 2px 0 rgba(255,255,255,0.9); }
@@ -23,26 +25,32 @@
             transition: opacity 1s ease-out;
         }
 
-        .scroll-wrapper { perspective: 1000px; display: flex; justify-content: center; align-items: center; min-height: 200px; cursor: pointer; padding: 20px; }
+        .scroll-wrapper { perspective: 1200px; display: flex; justify-content: center; align-items: center; min-height: 200px; cursor: pointer; padding: 20px; }
+        .scroll-wrapper:focus-visible { outline: 3px solid #8a4fc0; outline-offset: 6px; border-radius: 12px; }
         .royal-scroll {
-            width: 100%; max-width: 900px; height: 110px; background: #fdf5e6;
+            width: 100%; max-width: 900px; height: 110px; padding: 0 24px; background: #fdf5e6;
             background-image: radial-gradient(#fdf5e6 60%, #f3e5ab 100%);
-            position: relative; transition: all 1.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+            position: relative; transform-origin: top center;
+            transform: rotateX(-5deg) scale(0.98);
+            transition: height 0.9s cubic-bezier(0.22, 1, 0.36, 1), padding 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.9s ease;
             overflow: hidden; border-radius: 5px; box-shadow: 0 10px 40px rgba(30,42,94,0.3);
             display: flex; align-items: center; justify-content: center;
         }
-        .royal-scroll.is-open { height: auto; min-height: 500px; padding: 60px 40px; }
+        .royal-scroll.is-open { height: min(680px, max(320px, 78vh)); padding: 40px; transform: rotateX(0) scale(1); box-shadow: 0 24px 60px rgba(30,42,94,0.28); }
         .roller {
             position: absolute; width: 105%; height: 45px;
             background: linear-gradient(to bottom, #6d3a12, #8b4513, #6d3a12);
             left: -2.5%; z-index: 20; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: transform 1.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+            transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.8s ease;
         }
         .roller-top { top: 0; } .roller-bottom { bottom: 0; }
-        .is-open .roller-top { transform: translateY(-15px); }
-        .is-open .roller-bottom { transform: translateY(15px); }
-        .scroll-content { opacity: 0; transition: opacity 1s; transition-delay: 0.8s; width: 100%; }
-        .is-open .scroll-content { opacity: 1; }
+        .is-open .roller-top { transform: translateY(-17px) scaleX(1.02); }
+        .is-open .roller-bottom { transform: translateY(17px) scaleX(1.02); }
+        .scroll-content { width: 100%; max-height: 100%; overflow-y: auto; opacity: 0; pointer-events: none; transform: translateY(-18px) scale(0.985); filter: blur(3px); transition: opacity 0.45s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease; }
+        .is-open .scroll-content { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); filter: blur(0); transition-delay: 0.25s; }
+        .is-open .roller { box-shadow: 0 8px 18px rgba(0,0,0,0.3); }
+        #scroll-hint { transition: opacity 0.35s ease, transform 0.45s ease; }
+        .is-open #scroll-hint { opacity: 0; transform: translateY(10px); pointer-events: none; }
 
         .student-card { background: linear-gradient(#fff, #fffafc) padding-box, linear-gradient(135deg, var(--c1), var(--c2)) border-box; border: 3px solid transparent; transition: all 0.4s; cursor: pointer; }
         .student-card:hover { transform: translateY(-15px) rotate(-3deg); box-shadow: 0 16px 32px -10px var(--c2); }
@@ -55,6 +63,7 @@
         .cute-message-box::before { content: "🌼"; position: absolute; top: -15px; left: 10px; font-size: 1.5rem; }
         .cute-message-box::after { content: "🌼"; position: absolute; bottom: -15px; right: 10px; font-size: 1.5rem; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 300%; height: 100%; z-index: -1; background: linear-gradient(100deg, #fde7ee, #ece3fb, #d9edfa, #e1f5ee, #fff3dc, #fde7ee); will-change: transform; animation: aurora 24s ease-in-out infinite; }
+        body.page-hidden * { animation-play-state: paused !important; }
         @keyframes aurora { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(-66.667%, 0, 0); } }
         @keyframes shimmer { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
         .grad-text { display: inline-block; background: linear-gradient(90deg, #1e2a5e, #7b3f8c, #d4577a, #d9a441, #d4577a, #7b3f8c, #1e2a5e); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; animation: shimmer 10s ease-in-out infinite; }
@@ -64,7 +73,22 @@
         .btn-pulse { animation: shimmer 8s ease-in-out infinite, glow 2.6s ease-in-out infinite; }
         .avatar-bg { background: linear-gradient(135deg, var(--c1), var(--c2)); }
         .modal-box { background: linear-gradient(#fffaf5, #fffaf5) padding-box, linear-gradient(135deg, #f6b3a8, #b8a7f0, #8fd0f5) border-box; border: 4px solid transparent; }
-        @media (prefers-reduced-motion: reduce) { body::before, .grad-text, .btn-grad, .btn-pulse, #tree-sway { animation: none; } }
+        #tree-falling-leaves { pointer-events: none; }
+        .falling-leaf { opacity: 0; transform-box: fill-box; transform-origin: center; }
+        #gratitude-tree.leaves-active .falling-leaf { animation: leaf-drift 7.2s ease-in-out infinite; }
+        #gratitude-tree.leaves-active .leaf-two { animation-delay: -2.7s; }
+        #gratitude-tree.leaves-active .leaf-three { animation-delay: -5.1s; }
+        @keyframes leaf-drift {
+            0% { opacity: 0; transform: translate(0, 0) rotate(-12deg) scale(0.85); }
+            14% { opacity: 0.72; }
+            38% { transform: translate(5px, 22px) rotate(24deg) scale(0.95); }
+            67% { opacity: 0.62; transform: translate(-3px, 48px) rotate(66deg) scale(0.9); }
+            100% { opacity: 0; transform: translate(7px, 72px) rotate(112deg) scale(0.78); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            body::before, .grad-text, .btn-grad, .btn-pulse, #tree-sway, .falling-leaf { animation: none !important; }
+            .royal-scroll, .roller, .scroll-content, #scroll-hint { transition-duration: 0.01ms; transition-delay: 0ms; }
+        }
         #tree-sway { transform-origin: 120px 238px; animation: sway 7s ease-in-out infinite; }
         @keyframes sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
     </style>
@@ -80,7 +104,7 @@
                 <span class="text-6xl block mb-2">💐</span>
                 <span class="font-bold uppercase tracking-widest text-xl">Mở Thiệp</span>
             </button>
-            <p class="mt-8 text-[#1e2a5e]/60 italic">Nhấn vào bất cứ đâu để thấy điều kỳ diệu!</p>
+            <p class="mt-8 text-[#1e2a5e]/60 italic">Nhấn nút “Mở Thiệp” để khám phá nhé!</p>
         </div>
     </div>
 
@@ -99,13 +123,20 @@
             <div class="mb-8">
                 <svg id="gratitude-tree" viewBox="0 0 240 260" class="mx-auto w-56 md:w-72 h-auto" role="img" aria-label="Cây tri ân lớn dần đến ngày 20/11">
                     <defs>
-                        <radialGradient id="soil" cx="50%" cy="40%" r="70%"><stop offset="0%" stop-color="#d9b48a"/><stop offset="100%" stop-color="#a77c55"/></radialGradient>
+                        <radialGradient id="soil" cx="50%" cy="30%" r="75%"><stop offset="0%" stop-color="#a8df8f"/><stop offset="65%" stop-color="#72bd72"/><stop offset="100%" stop-color="#4f965d"/></radialGradient>
                         <linearGradient id="bark" gradientUnits="userSpaceOnUse" x1="70" y1="0" x2="170" y2="0"><stop offset="0" stop-color="#bd8f66"/><stop offset="0.5" stop-color="#8f6342"/><stop offset="1" stop-color="#6b4630"/></linearGradient>
                     </defs>
                     <ellipse cx="120" cy="240" rx="80" ry="13" fill="url(#soil)"/>
-                    <path d="M84 241 q-1-9-6-14 M89 241 q0-8-2-15 M94 241 q2-7 0-12 M146 241 q-2-7 0-12 M151 241 q0-8 3-15 M156 241 q1-9 6-14" stroke="#6fcf9f" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <path d="M51 239 q7-2 14-1 M178 238 q6 1 11 0" stroke="#b4e69a" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.75"/>
+                    <path d="M65 237 q-1-8-6-11 M70 238 q1-7 4-10 M79 238 q-1-10-4-14 M84 241 q-1-9-6-14 M89 241 q0-8-2-15 M94 241 q2-7 0-12 M146 241 q-2-7 0-12 M151 241 q0-8 3-15 M156 241 q1-9 6-14 M163 238 q3-8 1-12 M170 238 q5-6 5-10 M180 238 q4-6 8-7" stroke="#63a968" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <path d="M59 238 q-2-5-6-7 M74 239 q-1-5 1-8 M167 239 q2-6 5-8 M184 237 q5-4 9-4" stroke="#8ccc78" stroke-width="1.5" stroke-linecap="round" fill="none"/>
                     <ellipse id="tree-seed" cx="120" cy="235" rx="5" ry="3.5" fill="#7a4e2d"/>
                     <g id="tree-scale"><g id="tree-sway"></g></g>
+                    <g id="tree-falling-leaves" aria-hidden="true">
+                        <g transform="translate(82 126)"><g class="falling-leaf leaf-one"><path d="M0 0 C-5 -3 -7 -9 0 -14 C7 -9 5 -3 0 0Z" fill="#63bf93"/><path d="M0 -1 L0 -12" stroke="#3b8c67" stroke-width="0.7"/></g></g>
+                        <g transform="translate(157 111)"><g class="falling-leaf leaf-two"><path d="M0 0 C-4 -3 -6 -8 0 -12 C6 -8 4 -3 0 0Z" fill="#8fcf78"/><path d="M0 -1 L0 -10" stroke="#568c4c" stroke-width="0.7"/></g></g>
+                        <g transform="translate(126 145)"><g class="falling-leaf leaf-three"><path d="M0 0 C-5 -3 -7 -9 0 -13 C7 -9 5 -3 0 0Z" fill="#78bd69"/><path d="M0 -1 L0 -11" stroke="#568c4c" stroke-width="0.7"/></g></g>
+                    </g>
                 </svg>
                 <p id="tree-caption" class="text-sm md:text-base font-bold text-[#1e2a5e]/80 mt-1"></p>
             </div>
@@ -122,14 +153,14 @@
     </header>
 
     <section class="py-24 px-8 bg-white/40">
-        <div class="max-w-5xl mx-auto scroll-wrapper" onclick="toggleScroll()">
+        <div class="max-w-5xl mx-auto scroll-wrapper" role="button" tabindex="0" aria-controls="main-scroll" aria-expanded="false" aria-label="Mở thư tri ân" onclick="toggleScroll()" onkeydown="handleScrollKey(event)">
             <div class="royal-scroll" id="main-scroll">
                 <div class="roller roller-top"></div>
 
                 <div class="scroll-content p-6">
                     <div class="flex flex-col md:flex-row gap-12 items-center">
                         <div class="md:w-1/2">
-                            <img src="anhto.jpg" class="rounded-lg shadow-2xl border-8 border-white w-full" alt="Team">
+                            <img src="team-12a1.png" class="rounded-lg shadow-2xl border-8 border-white w-full" alt="Tập thể lớp 12A1">
                         </div>
                         <div class="md:w-1/2 text-center md:text-left">
                             <h2 class="text-5xl md:text-6xl font-tet text-[#8a3b8f] mb-4 underline decoration-[#d9a441]">Tập thể 12A1</h2>
@@ -146,7 +177,7 @@
                 </div>
 
                 <div class="roller roller-bottom"></div>
-                <div id="scroll-hint" class="absolute inset-0 flex items-center justify-center z-30 transition-opacity">
+                <div id="scroll-hint" aria-hidden="true" class="absolute inset-0 flex items-center justify-center z-30 transition-opacity">
                     <span class="btn-grad text-white px-8 py-3 rounded-full font-bold shadow-xl border border-white">MỞ THƯ TRI ÂN 💌</span>
                 </div>
             </div>
@@ -184,6 +215,7 @@
         const clickCanvas = document.getElementById('click-canvas');
         const clickCtx = clickCanvas.getContext('2d');
         let clickParticles = [];
+        let clickAnimationId = 0;
         const chalkColors = ['#e58fa6', '#8f7be0', '#5aa9e6', '#d9a441', '#4fb8a6', '#f08a7e'];
 
         function resizeClickCanvas() {
@@ -218,47 +250,78 @@
 
         window.addEventListener('mousedown', (e) => {
             for (let i = 0; i < 18; i++) clickParticles.push(new ClickParticle(e.clientX, e.clientY));
+            if (!document.hidden && !clickAnimationId) clickAnimationId = requestAnimationFrame(handleClickParticles);
         });
 
         function handleClickParticles() {
+            clickAnimationId = 0;
+            if (document.hidden) return;
             clickCtx.clearRect(0, 0, clickCanvas.width, clickCanvas.height);
             for (let i = 0; i < clickParticles.length; i++) {
                 clickParticles[i].update();
                 clickParticles[i].draw();
                 if (clickParticles[i].opacity <= 0) { clickParticles.splice(i, 1); i--; }
             }
-            requestAnimationFrame(handleClickParticles);
+            if (clickParticles.length) clickAnimationId = requestAnimationFrame(handleClickParticles);
         }
-        handleClickParticles();
+
+        document.addEventListener('visibilitychange', () => {
+            document.body.classList.toggle('page-hidden', document.hidden);
+            if (document.hidden) {
+                if (clickAnimationId) cancelAnimationFrame(clickAnimationId);
+                clickAnimationId = 0;
+                clickParticles = [];
+                clickCtx.clearRect(0, 0, clickCanvas.width, clickCanvas.height);
+            }
+        });
 
         // --- CÁC HÀM CHÍNH ---
         function startEverything() {
             document.getElementById('main-music').play().catch(e => e);
-            setTimeout(() => { treeGo = true; }, 600);
+            setTimeout(() => {
+                treeGo = true;
+                if (!reduceMotion) document.getElementById('gratitude-tree').classList.add('leaves-active');
+                if (reduceMotion) {
+                    treeShown = treeTarget;
+                    renderTree(treeShown);
+                } else {
+                    scheduleTreeAnimation();
+                }
+            }, 600);
             document.getElementById('welcome-screen').style.opacity = '0';
             setTimeout(() => { document.getElementById('welcome-screen').style.display = 'none'; }, 1000);
         }
 
         function toggleScroll() {
             const scroll = document.getElementById('main-scroll');
-            scroll.classList.toggle('is-open');
-            document.getElementById('scroll-hint').style.opacity = scroll.classList.contains('is-open') ? '0' : '1';
+            const isOpen = scroll.classList.toggle('is-open');
+            const wrapper = scroll.closest('.scroll-wrapper');
+            wrapper.setAttribute('aria-expanded', String(isOpen));
+            wrapper.setAttribute('aria-label', isOpen ? 'Đóng thư tri ân' : 'Mở thư tri ân');
+            document.getElementById('scroll-hint').querySelector('span').textContent = isOpen ? 'ĐÓNG THƯ TRI ÂN ✨' : 'MỞ THƯ TRI ÂN 💌';
         }
 
-        // DỮ LIỆU 11 THẦY CÔ LỚP 12A1 (theo TKB số 05, 02-07/11/2026)
+        function handleScrollKey(event) {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            toggleScroll();
+        }
+
+        // DỮ LIỆU 11 THẦY CÔ LỚP 12A1
+
         // Ảnh thầy cô được lưu trong thư mục images/teachers.
         const members = [
-            { name: "Thầy Ninh", subject: "Toán", icon: "📐", image: "images/teachers/ninh.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã kiên nhẫn dẫn dắt cả lớp, trong giờ Toán lẫn ngoài giờ học." },
-            { name: "Cô Phương", subject: "Ngữ văn", icon: "📖", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em biết yêu từng con chữ và dám nói điều mình nghĩ." },
-            { name: "Cô Son", subject: "Tiếng Anh", icon: "🌍", image: "images/teachers/son.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã mở cho chúng em cánh cửa nhìn ra thế giới bằng một ngôn ngữ mới." },
-            { name: "Cô Hải Yến", subject: "Vật lí", icon: "⚛️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu thế giới quanh mình vận hành ra sao, từng chút một." },
-            { name: "Thầy Thịnh", subject: "Hóa học", icon: "🧪", image: "images/teachers/thinh.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã cho chúng em thấy mỗi phản ứng đều có nguyên nhân, mỗi nỗ lực đều có kết quả." },
-            { name: "Cô Oanh", subject: "Sinh học", icon: "🌱", image: "images/teachers/oanh.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em trân trọng sự sống và những điều nhỏ bé quanh mình." },
-            { name: "Cô Huyền", subject: "Lịch sử", icon: "🏛️", image: "images/teachers/huyen.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu quá khứ để biết ơn hiện tại và vững bước tới tương lai." },
-            { name: "Thầy Thái", subject: "Tin học", icon: "💻", image: "images/teachers/thai-tin-hoc.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em tư duy logic và cách làm chủ công nghệ." },
-            { name: "Thầy Công", subject: "Giáo dục thể chất (GDTC)", icon: "⚽", image: "images/teachers/cong.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em khỏe người, khỏe tinh thần sau những giờ học căng thẳng." },
-            { name: "Thầy Chung", subject: "Quốc phòng - An ninh (QPAN)", icon: "🎖️", image: "images/teachers/chung.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em tinh thần kỷ luật và lòng yêu Tổ quốc." },
-            { name: "Cô Thanh", subject: "Giáo dục địa phương (GDĐP)", icon: "🏞️", image: "images/teachers/thanh.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em thêm yêu và tự hào về quê hương Ninh Bình." }
+            { name: "Thầy Ninh", subject: "Toán", icon: "📐", image: "images/teachers/ninh.jpg", gvcn: false, quote: "Cảm ơn thầy đã kiên nhẫn dẫn dắt cả lớp, trong giờ Toán lẫn ngoài giờ học." },
+            { name: "Cô Phương", subject: "Ngữ văn", icon: "📖", image: "", gvcn: false, quote: "Cảm ơn cô đã dạy chúng em biết yêu từng con chữ và dám nói điều mình nghĩ." },
+            { name: "Cô Son", subject: "Tiếng Anh", icon: "🌍", image: "images/teachers/son.jpg", gvcn: false, quote: "Cảm ơn cô đã mở cho chúng em cánh cửa nhìn ra thế giới bằng một ngôn ngữ mới." },
+            { name: "Cô Hải Yến", subject: "Vật lí", icon: "⚛️", image: "", gvcn: false, quote: "Cảm ơn cô đã giúp chúng em hiểu thế giới quanh mình vận hành ra sao, từng chút một." },
+            { name: "Thầy Thịnh", subject: "Hóa học", icon: "🧪", image: "images/teachers/thinh.jpg", gvcn: false, quote: "Cảm ơn thầy đã cho chúng em thấy mỗi phản ứng đều có nguyên nhân, mỗi nỗ lực đều có kết quả." },
+            { name: "Cô Oanh", subject: "Sinh học", icon: "🌱", image: "images/teachers/oanh.jpg", gvcn: false, quote: "Cảm ơn cô đã dạy chúng em trân trọng sự sống và những điều nhỏ bé quanh mình." },
+            { name: "Cô Huyền", subject: "Lịch sử", icon: "🏛️", image: "images/teachers/huyen.jpg", gvcn: false, quote: "Cảm ơn cô đã giúp chúng em hiểu quá khứ để biết ơn hiện tại và vững bước tới tương lai." },
+            { name: "Thầy Thái", subject: "Tin học", icon: "💻", image: "images/teachers/thai-tin-hoc.jpg", gvcn: false, quote: "Cảm ơn thầy đã dạy chúng em tư duy logic và cách làm chủ công nghệ." },
+            { name: "Thầy Công", subject: "Giáo dục thể chất (GDTC)", icon: "⚽", image: "images/teachers/cong.jpg", gvcn: false, quote: "Cảm ơn thầy đã giúp chúng em khỏe người, khỏe tinh thần sau những giờ học căng thẳng." },
+            { name: "Thầy Chung", subject: "Quốc phòng - An ninh (QPAN)", icon: "🎖️", image: "images/teachers/chung.jpg", gvcn: false, quote: "Cảm ơn thầy đã dạy chúng em tinh thần kỷ luật và lòng yêu Tổ quốc." },
+            { name: "Cô Thanh", subject: "Giáo dục địa phương (GDĐP)", icon: "🏞️", image: "images/teachers/thanh.jpg", gvcn: false, quote: "Cảm ơn cô đã giúp chúng em thêm yêu và tự hào về quê hương Ninh Bình." }
         ];
 
         // ===== BẢNG LỜI CHÚC =====
@@ -375,15 +438,14 @@
 
         function renderBoard() {
             buildRecipients();
-            recipients.sort((a, b) => b.wishes.length - a.wishes.length);
             const grid = document.getElementById('member-grid');
             grid.innerHTML = '';
-            recipients.forEach((r, i) => {
+            [...recipients].sort((a, b) => b.wishes.length - a.wishes.length).forEach((r, i) => {
                 const card = document.createElement('div');
                 card.className = 'student-card p-6 rounded-2xl flex flex-col items-center text-center';
                 card.style.cssText = palStyle(i);
                 card.innerHTML = `${avatar(r, 'w-24 h-24 rounded-full border-4 border-white shadow-md mb-4', 'text-5xl')}<h3 class="font-bold text-[#1e2a5e] text-lg">${esc(r.name)}</h3>${r.subject ? `<p class="text-[#b0457c] text-xs mb-1">${esc(r.subject)}</p>` : ''}${r.gvcn ? '<span class="medal-badge mt-1">GVCN 12A1</span>' : ''}<span class="text-xs font-bold text-[#1e2a5e]/70 mt-2">💌 ${r.wishes.length} lời chúc</span>`;
-                card.onclick = () => openModal(i);
+                card.onclick = () => openModal(r.key);
                 grid.appendChild(card);
             });
             const total = recipients.reduce((n, r) => n + r.wishes.length, 0);
@@ -391,7 +453,8 @@
         }
 
         // Xem tất cả lời chúc dành cho một thầy/cô
-        function openModal(i) {
+        function openModal(key) {
+            const i = recipients.findIndex(recipient => recipient.key === key);
             const r = recipients[i];
             if (!r) return;
             const list = r.wishes.map(w => `
@@ -409,25 +472,29 @@
                             ${r.gvcn ? '<span class="personal-tag">Giáo viên chủ nhiệm 12A1</span>' : ''}
                         </div>
                         <div class="mb-8">${list}</div>
-                        <button onclick="giveWish(${i})" class="btn-grad text-white px-6 py-2 rounded-full font-bold shadow-lg active:scale-95 transition">✏️ Viết lời chúc cho ${esc(r.name)}</button>
+                        <button id="recipient-wish-button" class="btn-grad text-white px-6 py-2 rounded-full font-bold shadow-lg active:scale-95 transition">✏️ Viết lời chúc cho ${esc(r.name)}</button>
                     </div>
                 </div>`;
+            document.getElementById('recipient-wish-button').addEventListener('click', () => giveWish(r.key));
             document.getElementById('modal').style.display = 'flex';
         }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-        // Form gửi lời chúc: sel = số thứ tự thầy/cô để chọn sẵn, hoặc bỏ trống
-        function giveWish(sel) {
+        // Form gửi lời chúc: selectedKey identifies the preselected teacher, or is omitted.
+        function giveWish(selectedKey) {
             buildRecipients();
             let sender = '';
             try { sender = localStorage.getItem(SENDER_KEY) || ''; } catch (e) {}
-            const opts = recipients.map((r, i) => `<option value="${i}" ${sel === i ? 'selected' : ''}>${esc(r.name)}${r.subject ? ' – ' + esc(r.subject) : ''}</option>`).join('');
+            const opts = [...recipients]
+                .sort((a, b) => b.wishes.length - a.wishes.length)
+                .map(r => `<option value="${esc(r.key)}" ${selectedKey === r.key ? 'selected' : ''}>${esc(r.name)}${r.subject ? ' – ' + esc(r.subject) : ''}</option>`)
+                .join('');
             document.getElementById('modal-content').innerHTML = `
                 <div class="max-w-lg mx-auto text-left">
                     <h2 class="text-4xl md:text-5xl font-tet grad-text mb-6 text-center">Gửi Lời Chúc</h2>
                     <label class="block text-sm font-bold mb-1" for="wish-to">Gửi đến</label>
                     <select id="wish-to" onchange="onWishTo()" class="${fieldCls}">
-                        <option value="" ${sel == null ? 'selected' : ''}>— Chọn thầy/cô —</option>
+                        <option value="" ${selectedKey == null ? 'selected' : ''}>— Chọn thầy/cô —</option>
                         ${opts}
                         <option value="new">➕ Thầy/cô khác (tự nhập tên)</option>
                     </select>
@@ -512,7 +579,8 @@
                     name = `${title} ${name}`;
                 }
             } else {
-                const r = recipients[+v];
+                const r = recipients.find(recipient => recipient.key === v);
+                if (!r) { err.textContent = 'Không tìm thấy thầy/cô đã chọn. Hãy chọn lại người nhận.'; return; }
                 name = r.name; subject = r.subject;
             }
             if (!text) { err.textContent = 'Hãy viết lời chúc của bạn nhé.'; return; }
@@ -531,7 +599,7 @@
             const cached = saveWishes(all);
             try { localStorage.setItem(SENDER_KEY, from); } catch (e) {}
             renderBoard();
-            const idx = recipients.findIndex(r => r.key === rKey(name, subject));
+            const recipientKey = rKey(name, subject);
             document.getElementById('modal-content').innerHTML = `
                 <div class="text-center py-6 max-w-lg mx-auto">
                     <p class="text-sm uppercase tracking-[3px] font-bold text-[#b0457c] mb-2">Đã gửi đến</p>
@@ -540,11 +608,14 @@
                     <p class="mt-5 text-sm text-[#1e2a5e]/70">— ${esc(from || 'Ẩn danh')} —</p>
                     ${cached ? '' : '<p class="mt-3 text-xs text-[#1e2a5e]/70">Lời chúc đã được lưu trên Google Sheets; trình duyệt này không lưu được bản xem trước.</p>'}
                     <div class="mt-8 flex flex-wrap gap-3 justify-center">
-                        <button onclick="openModal(${idx})" class="px-6 py-2 rounded-full font-bold border-2 border-[#b8a7f0] text-[#1e2a5e]">📜 Xem lời chúc của ${esc(name)}</button>
+                        <button id="sent-wish-open-recipient" data-recipient-key="${esc(recipientKey)}" class="px-6 py-2 rounded-full font-bold border-2 border-[#b8a7f0] text-[#1e2a5e]">📜 Xem lời chúc của ${esc(name)}</button>
                         <button onclick="giveWish()" class="px-6 py-2 rounded-full font-bold border-2 border-[#b8a7f0] text-[#1e2a5e]">➕ Gửi thêm</button>
                         <button onclick="closeModal()" class="btn-grad text-white px-6 py-2 rounded-full font-bold">Đóng</button>
                     </div>
                 </div>`;
+            document.getElementById('sent-wish-open-recipient').addEventListener('click', event => {
+                openModal(event.currentTarget.dataset.recipientKey);
+            });
         }
 
         async function loadWishesFromServer() {
@@ -614,8 +685,8 @@
             }
             saveWishes(all.filter(x => x.id !== id));
             renderBoard();
-            const idx = w ? recipients.findIndex(r => r.key === rKey(w.to, w.subject)) : -1;
-            if (idx >= 0) openModal(idx); else closeModal();
+            const key = w ? rKey(w.to, w.subject) : '';
+            if (recipients.some(r => r.key === key)) openModal(key); else closeModal();
         }
 
         renderBoard();
@@ -661,15 +732,33 @@
         }
         const calmMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
         const blossomParts = Array.from({ length: calmMotion ? 0 : (window.innerWidth < 640 ? 9 : 15) }, () => new Blossom(true));
-        let lastT = 0;
+        let lastT = 0, blossomAnimationId = 0;
+        function scheduleBlossomAnimation() {
+            if (!document.hidden && !calmMotion && blossomParts.length && !blossomAnimationId) {
+                blossomAnimationId = requestAnimationFrame(bAnim);
+            }
+        }
         function bAnim(t) {
+            blossomAnimationId = 0;
+            if (document.hidden || calmMotion || !blossomParts.length) return;
             const dt = lastT ? Math.min((t - lastT) / 16.667, 3) : 1; lastT = t;
             bCtx.setTransform(1, 0, 0, 1, 0, 0);
             bCtx.clearRect(0, 0, blossomCanvas.width, blossomCanvas.height);
             blossomParts.forEach(p => { p.update(dt); p.draw(); });
-            requestAnimationFrame(bAnim);
+            scheduleBlossomAnimation();
         }
-        requestAnimationFrame(bAnim);
+        scheduleBlossomAnimation();
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (blossomAnimationId) cancelAnimationFrame(blossomAnimationId);
+                blossomAnimationId = 0;
+                lastT = 0;
+                bCtx.setTransform(1, 0, 0, 1, 0, 0);
+                bCtx.clearRect(0, 0, blossomCanvas.width, blossomCanvas.height);
+            } else {
+                scheduleBlossomAnimation();
+            }
+        });
 
         // ===== CÂY TRI ÂN: nhỏ lớn dần trong 30 ngày, nở hoa đúng 20/11 =====
         const GROW_DAYS = 30;
@@ -780,6 +869,7 @@
         }
 
         let treeTarget = 0, treeShown = 0, treeGo = false, lastCaption = '';
+        let treeAnimationId = 0;
         const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
         const forcedP = parseFloat(new URLSearchParams(location.search).get('cay'));
 
@@ -793,19 +883,41 @@
             const html = `${msg}<span class="block text-xs font-normal opacity-80">Cây tri ân đã lớn ${Math.round(p * 100)}%</span>`;
             if (html !== lastCaption) { document.getElementById('tree-caption').innerHTML = html; lastCaption = html; }
         }
-        function setTreeTarget(p) { treeTarget = isNaN(forcedP) ? p : clamp01(forcedP); updateCaption(); }
-
-        function treeLoop() {
-            if (treeGo || reduceMotion) {
-                const diff = treeTarget - treeShown;
-                if (diff !== 0) {
-                    treeShown = Math.abs(diff) < 0.0005 ? treeTarget : treeShown + (reduceMotion ? diff : diff * 0.035);
-                    renderTree(treeShown);
-                }
+        function scheduleTreeAnimation() {
+            if (!document.hidden && !reduceMotion && treeGo && Math.abs(treeTarget - treeShown) >= 0.0005 && !treeAnimationId) {
+                treeAnimationId = requestAnimationFrame(treeLoop);
             }
-            requestAnimationFrame(treeLoop);
         }
-        renderTree(0); treeLoop();
+        function treeLoop() {
+            treeAnimationId = 0;
+            if (document.hidden || !treeGo) return;
+            const diff = treeTarget - treeShown;
+            if (Math.abs(diff) >= 0.0005) {
+                const next = treeShown + diff * 0.035;
+                treeShown = Math.abs(treeTarget - next) < 0.0005 ? treeTarget : next;
+                renderTree(treeShown);
+                scheduleTreeAnimation();
+            }
+        }
+        function setTreeTarget(p) {
+            treeTarget = isNaN(forcedP) ? p : clamp01(forcedP);
+            updateCaption();
+            if (reduceMotion && treeGo) {
+                treeShown = treeTarget;
+                renderTree(treeShown);
+            } else if (!reduceMotion) {
+                scheduleTreeAnimation();
+            }
+        }
+        renderTree(0);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (treeAnimationId) cancelAnimationFrame(treeAnimationId);
+                treeAnimationId = 0;
+            } else {
+                scheduleTreeAnimation();
+            }
+        });
 
         function up() {
             const now = new Date();
