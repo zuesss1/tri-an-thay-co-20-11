@@ -1,15 +1,17 @@
 # Tri Ân Thầy Cô 20/11
 
+[🌐 Bấm vào đây để xem giao diện website](https://zuesss1.github.io/tri-an-thay-co-20-11/)
+
 Trang thiệp tương tác chào mừng Ngày Nhà giáo Việt Nam 20/11. Trang có hiệu ứng hoa và cây tri ân, danh sách thầy cô, cùng form gửi lời chúc.
 
 ## Lưu ý
 
-- Bản có form gửi lời chúc là `20-11-tri-an-thay-co 3.html`.
+- File giao diện chính là `20-11-tri-an-thay-co.html`; có thể mở website bằng link phía trên.
 - Ảnh thầy cô được lưu trong `images/teachers/` và khai báo theo từng thầy cô trong dữ liệu trang.
 - Lời chúc gửi từ form được lưu vào Google Sheets thông qua Google Apps Script trong `Code.gs`. Cần triển khai Apps Script dạng Web App và cấu hình URL trong file HTML.
 - Lời chúc gửi thành công được lưu và tải từ Google Sheets để hiển thị đồng bộ trên các thiết bị. Trình duyệt cũng giữ một bản cache `localStorage`.
 - Web App nhận dữ liệu công khai có thể bị gửi nội dung rác. Hãy kiểm tra Google Sheet định kỳ.
-- Hai file HTML còn lại là các phiên bản trước, trong đó nút gửi lời chúc chọn nội dung ngẫu nhiên.
+- `20-11-tri-an-thay-co-backup.html` là bản backup phát triển, không phải file được GitHub Pages dùng làm trang chính.
 
 ## Credit
 
