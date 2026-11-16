@@ -85,7 +85,7 @@
     </div>
 
     <canvas id="blossom-container"></canvas>
-    <audio id="main-music" loop><source src="nhac.mp3" type="audio/mpeg"></audio>
+    <audio id="main-music" loop><source src="bui phan.mp3" type="audio/mpeg"></audio>
 
     <header class="min-h-screen flex flex-col items-center justify-center text-center px-4 pt-24 pb-8 relative">
         <div class="mb-10 z-10">
@@ -245,7 +245,7 @@
             document.getElementById('scroll-hint').style.opacity = scroll.classList.contains('is-open') ? '0' : '1';
         }
 
-        // DỮ LIỆU 12 THẦY CÔ LỚP 12A1 (theo TKB số 05, 02-07/11/2026)
+        // DỮ LIỆU 11 THẦY CÔ LỚP 12A1 (theo TKB số 05, 02-07/11/2026)
         // Muốn thêm ảnh: điền tên file vào "image", ví dụ image: "ninh.jpg"
         const members = [
             { name: "Thầy Ninh", subject: "Toán", icon: "📐", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã kiên nhẫn dẫn dắt cả lớp, trong giờ Toán lẫn ngoài giờ học." },
@@ -258,13 +258,11 @@
             { name: "Thầy Thái", subject: "Tin học", icon: "💻", image: "thay-thai-tin-hoc.jpg", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em tư duy logic và cách làm chủ công nghệ." },
             { name: "Thầy Công", subject: "Giáo dục thể chất (GDTC)", icon: "⚽", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em khỏe người, khỏe tinh thần sau những giờ học căng thẳng." },
             { name: "Thầy Chung", subject: "Quốc phòng - An ninh (QPAN)", icon: "🎖️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã dạy chúng em tinh thần kỷ luật và lòng yêu Tổ quốc." },
-            { name: "Thầy Thái", subject: "HĐ trải nghiệm, hướng nghiệp (HĐTN)", icon: "🧭", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em hiểu mình hơn và chọn được hướng đi cho tương lai." },
             { name: "Cô Thanh", subject: "Giáo dục địa phương (GDĐP)", icon: "🏞️", image: "", gvcn: false, quote: "Cảm ơn thầy/cô đã giúp chúng em thêm yêu và tự hào về quê hương Ninh Bình." }
         ];
 
         // ===== BẢNG LỜI CHÚC =====
-        // Có sẵn 12 thầy/cô ở trên; ai gửi lời chúc cho một tên mới thì tên đó tự thêm vào bảng.
-        // Dán URL Web App của Google Apps Script sau khi triển khai.
+        // URL triển khai Google Apps Script để lưu lời chúc vào Google Sheet
         const WISH_API_URL = 'https://script.google.com/macros/s/AKfycbwC1eSzjGf1YMb-vuKqzsU07P85IUvJlkNOuimJDBULenAJdz91DnZ1dp05HFoOImRy8A/exec';
         // Giữ bản lưu cục bộ để lời chúc mới vẫn hiện ngay trên trình duyệt gửi.
         const BOARD_KEY = 'wishboard-group1-v1';
@@ -674,7 +672,6 @@
         requestAnimationFrame(bAnim);
 
         // ===== CÂY TRI ÂN: nhỏ lớn dần trong 30 ngày, nở hoa đúng 20/11 =====
-        // Xem thử các giai đoạn: thêm ?cay=0.3 (0 → 1) vào đường dẫn của trang
         const GROW_DAYS = 30;
         const NS = 'http://www.w3.org/2000/svg';
         const treeScale = document.getElementById('tree-scale');
